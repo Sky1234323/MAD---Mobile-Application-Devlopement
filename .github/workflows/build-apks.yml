@@ -1,0 +1,71 @@
+name: Build All Practicals APKs
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.practical.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        practical:
+          - name: "Practical 1"
+            dir: "Practical1"
+            artifact: "Practical1-apk"
+          - name: "Practical 2"
+            dir: "Practical2"
+            artifact: "Practical2-apk"
+          - name: "Practical 3"
+            dir: "Practical3"
+            artifact: "Practical3-apk"
+          - name: "Practical 4"
+            dir: "Practical4"
+            artifact: "Practical4-apk"
+          - name: "Practical 5"
+            dir: "Practical5"
+            artifact: "Practical5-apk"
+          - name: "Practical 6"
+            dir: "Practical6"
+            artifact: "Practical6-apk"
+          - name: "Practical 7"
+            dir: "Practical7"
+            artifact: "Practical7-apk"
+          - name: "Practical 9 - Spendly"
+            dir: "Practical9 - Spendly"
+            artifact: "Practical9-Spendly-apk"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x "${{ matrix.practical.dir }}/gradlew"
+
+      - name: Build Debug APK
+        working-directory: ${{ matrix.practical.dir }}
+        run: |
+          ./gradlew assembleDebug \
+            -Dorg.gradle.internal.http.socketTimeout=120000 \
+            -Dorg.gradle.internal.http.connectionTimeout=120000 \
+            --stacktrace || (echo "Retrying build after transient network glitch..." && sleep 5 && ./gradlew assembleDebug -Dorg.gradle.internal.http.socketTimeout=120000 -Dorg.gradle.internal.http.connectionTimeout=120000 --stacktrace)
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.practical.artifact }}
+          path: ${{ matrix.practical.dir }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

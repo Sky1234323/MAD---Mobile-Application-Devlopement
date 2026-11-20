@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Practical5" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <style name="Theme.Practical5" parent="Base.Theme.Practical5" />
+</resources>
