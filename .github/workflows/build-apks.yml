@@ -55,6 +55,28 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x "${{ matrix.practical.dir }}/gradlew"
 
+      - name: Inject Gemini API Key
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -n "$GEMINI_API_KEY" ]; then
+            echo "Injecting Gemini API Key from GitHub Secrets..."
+            python3 -c "
+          import os, glob
+          key = os.environ.get('GEMINI_API_KEY', '')
+          if key:
+              for path in glob.glob('${{ matrix.practical.dir }}/**/src/**/*.java', recursive=True):
+                  with open(path, 'r', encoding='utf-8') as f:
+                      content = f.read()
+                  if 'YOUR_GEMINI_API_KEY' in content:
+                      with open(path, 'w', encoding='utf-8') as f:
+                          f.write(content.replace('YOUR_GEMINI_API_KEY', key))
+                      print(f'Successfully injected key into {path}')
+          "
+          else
+            echo "GEMINI_API_KEY secret not configured. Keeping placeholder."
+          fi
+
       - name: Build Debug APK
         working-directory: ${{ matrix.practical.dir }}
         run: |
