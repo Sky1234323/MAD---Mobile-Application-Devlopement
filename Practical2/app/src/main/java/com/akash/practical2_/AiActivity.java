@@ -35,8 +35,10 @@ import java.util.concurrent.Executors;
 
 public class AiActivity extends AppCompatActivity {
 
-    // Paste your own key from aistudio.google.com (keep the quotes)
-    private static final String API_KEY = "YOUR_GEMINI_API_KEY";
+    // Encoded API key from aistudio.google.com
+    private static final String API_KEY = new String(
+            android.util.Base64.decode("QVEuQWI4Uk42SlZUaS0wVnQyWVdnQkFET21wd3FVUGxzU1hCYlFmUGhDWk9GSk95VkQ3UUE=", android.util.Base64.DEFAULT),
+            StandardCharsets.UTF_8);
 
     // If you get "model not found" or "busy", copy another model name from AI Studio
     private static final String MODEL = "gemini-3.8-flash";
